@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion"; // Added for Modal
 import {
   AlertCircle,
   Calendar,
@@ -11,21 +12,20 @@ import {
   Clock,
   Heart,
   Loader2,
-  LogOut,
   MapPin,
   Phone,
-  Settings,
-  Shield,
   User,
   VenusAndMars,
+  Users,
+  X
 } from "lucide-react";
-
 
 export default function ProfilePage() {
   const router = useRouter();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal State
 
   // State for form fields
   const [formData, setFormData] = useState({});
@@ -55,23 +55,38 @@ export default function ProfilePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdate = async () => {
-    setUpdating(true);
-    try {
-      const res = await fetch("/api/users/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ common: formData }),
-      });
-      if (res.ok) {
-        alert("Profile updated successfully!");
-      }
-    } catch (err) {
-      alert("Update failed");
-    } finally {
-      setUpdating(false);
+  // Logic for the Modal Agreement
+  const handleAgreeAndApply = async () => {
+  setUpdating(true); // Re-using your existing updating state
+  try {
+    const res = await fetch("/api/users/volunteer", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        "volunteer.requested": true,
+        "volunteer.status": "pending"
+      }),
+    });
+
+    if (res.ok) {
+      const updatedData = await res.json();
+      // Update local state so UI changes immediately
+      setUserData(prev => ({
+        ...prev,
+        volunteer: { request: true, status: "pending" }
+      }));
+      setIsModalOpen(false);
+      alert("Application submitted! Your status is now pending.");
+    } else {
+      alert("Failed to submit application.");
     }
-  };
+  } catch (err) {
+    console.error("Application error:", err);
+    alert("An error occurred.");
+  } finally {
+    setUpdating(false);
+  }
+};
 
   if (loading)
     return (
@@ -82,27 +97,13 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex">
-      
-
       <main className="flex-1 p-4 md:p-10 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                User Dashboard
-              </h1>
-              <p className="text-gray-500 text-sm">
-                Manage your profile and volunteer applications
-              </p>
-            </div>
-            <button
-              onClick={handleUpdate}
-              disabled={updating}
-              className="bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-600 transition-all flex items-center gap-2 disabled:bg-gray-400"
-            >
-              {updating && <Loader2 size={18} className="animate-spin" />}
-              Save Changes
-            </button>
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">User Dashboard</h1>
+            <p className="text-gray-500 text-sm">
+              Manage your profile and volunteer applications
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -110,12 +111,17 @@ export default function ProfilePage() {
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-4xl border border-gray-100 shadow-sm text-center">
                 <div className="relative inline-block mb-4">
-                  <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 text-3xl font-bold border-4 border-white shadow-md">
-                    {formData?.name?.charAt(0) || "U"}
+                  <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 text-3xl font-bold border-4 border-white shadow-md overflow-hidden">
+                    {formData?.image ? (
+                      <img
+                        src={formData?.image}
+                        alt={formData?.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      formData?.name?.charAt(0)
+                    )}
                   </div>
-                  <button className="absolute bottom-0 right-0 p-1.5 bg-white rounded-full shadow-lg border border-gray-100 text-gray-600 hover:text-indigo-600 transition-colors">
-                    <Camera size={16} />
-                  </button>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">
                   {formData?.name}
@@ -124,14 +130,16 @@ export default function ProfilePage() {
                   {formData?.phone_number}
                 </p>
                 <div className="flex justify-center gap-4 border-t border-gray-50 pt-6">
-                  <StatBox value="12" label="Donations" />
+                  <StatBox
+                    value={userData?.donor?.donation_history?.length || 0}
+                    label="Donations"
+                  />
                   <div className="w-px h-8 bg-gray-100 self-center"></div>
                   <StatBox value="48h" label="Volunteer" />
                 </div>
               </div>
 
               {/* 2. VERIFICATION STATUS */}
-              
               <div className="bg-white p-6 rounded-4xl border border-gray-100 shadow-sm">
                 <h4 className="text-sm font-bold text-gray-900 mb-4">
                   Verification Status
@@ -145,10 +153,10 @@ export default function ProfilePage() {
                   />
                   <StatusBadge
                     label="Volunteer"
-                    status={userData?.volunteer?.status} // Expected: "approved", "pending", or null
+                    status={userData?.volunteer?.status}
                     color="bg-blue-500"
-                    icon={<Clock size={14} />}
-                    onApply={() => router.push("/apply-volunteer")}
+                    icon={<Users size={14} />}
+                    onApply={() => setIsModalOpen(true)} // Open Modal
                   />
                 </div>
               </div>
@@ -163,32 +171,24 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputField
                     label="Full Name"
-                    name="name"
                     icon={<User size={18} />}
                     value={formData.name}
-                    onChange={handleInputChange}
                   />
                   <InputField
                     label="Phone Number"
-                    name="phone_number"
                     icon={<Phone size={18} />}
                     value={formData.phone_number}
-                    onChange={handleInputChange}
                   />
                   <InputField
                     label="Gender"
                     name="gender"
                     icon={<VenusAndMars size={18} />}
                     value={formData.gender}
-                    onChange={handleInputChange}
-                    placeholder="Male / Female"
                   />
                   <InputField
                     label="Date of Birth"
-                    name="dob"
-                    type="date"
                     icon={<Calendar size={18} />}
-                    value={formData.dob}
+                    value={formData.date_of_birth}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -202,31 +202,23 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputField
                     label="City"
-                    name="city"
                     icon={<MapPin size={18} />}
-                    value={formData.city}
-                    onChange={handleInputChange}
+                    value={formData?.address?.city}
                   />
                   <InputField
                     label="District"
-                    name="district"
                     icon={<MapPin size={18} />}
-                    value={formData.district}
-                    onChange={handleInputChange}
+                    value={formData?.address?.district}
                   />
                   <InputField
                     label="Upazila"
-                    name="upazila"
                     icon={<MapPin size={18} />}
-                    value={formData.upazila}
-                    onChange={handleInputChange}
+                    value={formData?.address?.upazila}
                   />
                   <InputField
                     label="Village"
-                    name="village"
                     icon={<MapPin size={18} />}
-                    value={formData.village}
-                    onChange={handleInputChange}
+                    value={formData?.address?.village}
                   />
                 </div>
               </div>
@@ -234,6 +226,63 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
+
+      {/* VOLUNTEER AGREEMENT MODAL */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                    <Users size={32} />
+                  </div>
+                  <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <X size={20} className="text-slate-400" />
+                  </button>
+                </div>
+
+                <h2 className="text-2xl font-black text-slate-900 mb-4">Volunteer Application</h2>
+                
+                <div className="space-y-4 text-slate-600 text-sm leading-relaxed mb-8 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <h4 className="font-bold text-slate-900 uppercase tracking-widest text-[10px]">Privacy & Terms</h4>
+                  <p>1. By becoming a volunteer, you agree to respond to blood requests when available.</p>
+                  <p>2. Your contact details will be visible to our administration and emergency coordinators.</p>
+                  <p>3. You agree to treat all patient information with strict confidentiality.</p>
+                  <p>4. This is a non-paid, social welfare position under Birabo Progoti.</p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button 
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleAgreeAndApply}
+                    className="flex-1 px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                  >
+                    I Agree & Apply
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -250,15 +299,7 @@ function StatBox({ value, label }) {
   );
 }
 
-function InputField({
-  label,
-  name,
-  icon,
-  value,
-  onChange,
-  type = "text",
-  placeholder,
-}) {
+function InputField({ label, name, icon, value, type = "text", onChange }) {
   return (
     <div className="space-y-2">
       <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">
@@ -272,9 +313,9 @@ function InputField({
           type={type}
           name={name}
           value={value || ""}
+          disabled={!onChange}
           onChange={onChange}
-          placeholder={placeholder}
-          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-semibold focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-semibold focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none disabled:opacity-80"
         />
       </div>
     </div>
@@ -282,18 +323,15 @@ function InputField({
 }
 
 function StatusBadge({ label, status, color, icon, onApply }) {
-  // Logic for status rendering
   const isApproved = status === "approved";
   const isPending = status === "pending";
-  const isNull = !status;
+  const isNone = !status || status === "none";
 
   return (
-    <div className="p-3 rounded-xl border border-gray-100 bg-white flex flex-col gap-3">
+    <div className="p-3 rounded-xl border border-gray-100 bg-white flex flex-col gap-3 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div
-            className={`p-1.5 rounded-lg text-white ${color} ${isNull ? "grayscale opacity-50" : ""}`}
-          >
+          <div className={`p-1.5 rounded-lg text-white ${color} ${isNone ? "grayscale opacity-50" : ""}`}>
             {icon}
           </div>
           <span className="text-sm font-bold text-gray-700">{label}</span>
@@ -302,39 +340,20 @@ function StatusBadge({ label, status, color, icon, onApply }) {
         {isPending && <AlertCircle size={18} className="text-amber-500" />}
       </div>
 
-      {isNull ? (
+      {isNone ? (
         <button
           onClick={onApply}
-          className="w-full py-2 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-all"
+          className="w-full py-2 bg-indigo-50 text-indigo-600 text-[11px] font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-all uppercase tracking-tight"
         >
-          Apply to become a {label}
+          Become a {label}
         </button>
       ) : (
-        <p
-          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md w-fit ${
-            isApproved
-              ? "bg-green-100 text-green-700"
-              : "bg-amber-100 text-amber-700"
-          }`}
-        >
+        <p className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md w-fit ${
+          isApproved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+        }`}>
           {status}
         </p>
       )}
-    </div>
-  );
-}
-
-function SidebarItem({ icon, label, active = false }) {
-  return (
-    <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${
-        active
-          ? "bg-indigo-50 text-indigo-600 shadow-sm"
-          : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-      }`}
-    >
-      {icon}
-      <span className="font-semibold text-sm">{label}</span>
     </div>
   );
 }
