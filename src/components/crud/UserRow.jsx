@@ -54,7 +54,7 @@ function UserRow({ user }) {
       const data = await imgbbRes.json();
       imageUrl = data.data.url;
     }
-    const res = await fetch(`http://localhost:3000/users/${user.id}`,{
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/${user.id}`,{
         method: "PUT",
         headers: {"Content-Type":"Application/json"},
         body: JSON.stringify({

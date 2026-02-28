@@ -19,7 +19,7 @@ async function page({ searchParams }) {
   const queryString = new URLSearchParams(params).toString();
 
   // Note: Ensure your API route is updated to return 'users' key based on the previous route.js update
-  const res = await fetch(`http://localhost:3000/api/users?${queryString}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users?${queryString}`, {
     cache: "no-store",
   });
   

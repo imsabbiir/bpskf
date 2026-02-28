@@ -12,7 +12,7 @@ const DonorDetails = async ({ params }) => {
   let user = null;
 
   try {
-    const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}`, {
       cache: "no-store",
     });
     

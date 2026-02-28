@@ -5,7 +5,7 @@ import Link from "next/link";
 import React from "react";
 
 async function page() {
-  const res = await fetch("http://localhost:3000/api/users");
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users`);
   const users = await res.json();
   return (
     <div className="min-h-screen w-full bg-[#f1f1f1] py-20">

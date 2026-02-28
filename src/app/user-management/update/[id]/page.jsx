@@ -27,7 +27,7 @@ function page() {
   // 🔹 Fetch existing user
   const fetchData = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/users/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}`);
       const data = await res.json();
 
       setUser({
@@ -93,7 +93,7 @@ function page() {
       images: imgUrl,
     };
 
-    const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedData),
