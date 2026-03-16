@@ -45,7 +45,7 @@ async function Page({ searchParams }) {
       >
         <div className="px-4 pb-32 pt-20 md:pb-40 md:pt-32 text-center backdrop-blur-sm">
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6">
-            রক্তের সন্ধানে <span className="text-red-500">জীবন</span> বাঁচান
+            রক্তদাতা <span className="text-red-500">খুঁজুন</span>
           </h1>
           <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed px-4 trio">
             আপনার স্থানীয় এলাকার donors এর সাথে সংযোগ করে জীবন বাঁচান। প্রতিটি
