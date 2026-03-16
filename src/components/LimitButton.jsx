@@ -1,7 +1,10 @@
 "use client";
 import React from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-
+const toBanglaNumber = (num) => {
+  const banglaDigits = ["0", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  return num.toString().replace(/\d/g, (d) => banglaDigits[d]);
+};
 function LimitButton() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,7 +37,7 @@ function LimitButton() {
       >
         {[10, 20, 50].map((n) => (
           <option key={n} value={n}>
-            {n}
+            {toBanglaNumber(n)}
           </option>
         ))}
       </select>

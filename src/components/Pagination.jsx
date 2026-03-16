@@ -2,6 +2,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import React from 'react'
 import Link from 'next/link'
 
+
+const toBanglaNumber = (num) => {
+  const banglaDigits = ["0", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  return num.toString().replace(/\d/g, (d) => banglaDigits[d]);
+};
 function Pagination({ pagination, currentSearchParams }) {
   const { page, totalPages } = pagination;
 
@@ -40,7 +45,7 @@ function Pagination({ pagination, currentSearchParams }) {
                   : "bg-white border text-slate-600 hover:bg-slate-50"
               }`}
             >
-              {pageNum}
+              {toBanglaNumber(pageNum)}
             </Link>
           );
         })}

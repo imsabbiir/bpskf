@@ -1,340 +1,123 @@
-"use client";
+# 🌱 Birbo Progoti Somajkollan Foundation Website
 
-import React, { useEffect, useState } from "react";
+This project is the official website of Birbo Progoti Somajkollan Foundation, a social welfare organization dedicated to serving communities through volunteer activities and social awareness programs.
 
-import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  Calendar,
-  Camera,
-  CheckCircle2,
-  Clock,
-  Heart,
-  Loader2,
-  LogOut,
-  MapPin,
-  Phone,
-  Settings,
-  Shield,
-  User,
-  VenusAndMars,
-} from "lucide-react";
+The website highlights the organization’s mission, activities, and initiatives while encouraging people to participate in community service.
+
+---
+
+# 🎯 About the Organization
+
+Birbo Progoti Somajkollan Foundation is a nonprofit organization working to improve society through different social and environmental initiatives.
+
+Their activities include:
+
+* Blood donation programs
+* Tree plantation campaigns
+* Road cleaning activities
+* Health awareness campaigns
+* Community welfare programs
+
+The goal of the organization is to inspire people to participate in social work and build a healthier and cleaner community.
+
+---
+
+# 🌍 Website Features
+
+* Responsive design (Mobile, Tablet, Desktop)
+* Modern and clean user interface
+* Organization activity showcase
+* Event and campaign information
+* Gallery section
+* Contact section for communication
+* Volunteer awareness
+
+---
+
+# 🛠 Technologies Used
+
+| Technology          | Purpose                         |
+| ------------------- | ------------------------------- |
+| HTML5               | Structure of the website        |
+| CSS3 / Tailwind CSS | Styling and responsive layout   |
+| JavaScript          | Interactivity                   |
+| React               | Building reusable UI components |
+| React Hooks         | Managing component state        |
+| Git & GitHub        | Version control                 |
+
+---
+
+# ⚙️ Installation
+
+Clone the repository
+
+git clone https://github.com/yourusername/project-name.git
+
+Go to the project folder
+
+cd project-name
+
+Install dependencies
+
+npm install
+
+Run the project
+
+npm run dev
+
+---
+
+# 📂 Project Structure
+
+project
+│
+├── public
+│
+├── src
+│   ├── components
+│   ├── pages
+│   ├── assets
+│   ├── styles
+│   └── App.jsx
+│
+├── package.json
+└── README.md
+
+---
+
+# 🎯 Purpose of This Website
+
+This website was built to:
+
+* Showcase the social work of the organization
+* Encourage people to join volunteer activities
+* Promote awareness about blood donation and environmental protection
+* Provide information about the organization’s campaigns and events
+
+---
+
+# 👨‍💻 Developer
+
+Sabbir Ahmed Mridul
+Frontend Developer
+
+Skills:
+
+* HTML
+* CSS
+* Tailwind CSS
+* JavaScript
+* React
+
+GitHub: https://github.com/sabbircodes
+
+---
+
+# 📄 License
+
+This project was developed for Birbo Progoti Somajkollan Foundation and is intended for organizational use.
 
 
-export default function ProfilePage() {
-  const router = useRouter();
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
 
-  // State for form fields
-  const [formData, setFormData] = useState({});
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch("/api/users/me");
-        const data = await res.json();
-        if (res.ok) {
-          setUserData(data.user);
-          setFormData(data.user.common || {});
-        } else {
-          router.push("/login");
-        }
-      } catch (err) {
-        router.push("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [router]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleUpdate = async () => {
-    setUpdating(true);
-    try {
-      const res = await fetch("/api/users/update", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ common: formData }),
-      });
-      if (res.ok) {
-        alert("Profile updated successfully!");
-      }
-    } catch (err) {
-      alert("Update failed");
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-        <Loader2 className="animate-spin text-indigo-600" size={40} />
-      </div>
-    );
-
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] flex">
       
-
-      <main className="flex-1 p-4 md:p-10 overflow-y-auto">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                User Dashboard
-              </h1>
-              <p className="text-gray-500 text-sm">
-                Manage your profile and volunteer applications
-              </p>
-            </div>
-            <button
-              onClick={handleUpdate}
-              disabled={updating}
-              className="bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-600 transition-all flex items-center gap-2 disabled:bg-gray-400"
-            >
-              {updating && <Loader2 size={18} className="animate-spin" />}
-              Save Changes
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* 1. IDENTITY CARD */}
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-4xl border border-gray-100 shadow-sm text-center">
-                <div className="relative inline-block mb-4">
-                  <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 text-3xl font-bold border-4 border-white shadow-md">
-                    {formData?.name?.charAt(0) || "U"}
-                  </div>
-                  <button className="absolute bottom-0 right-0 p-1.5 bg-white rounded-full shadow-lg border border-gray-100 text-gray-600 hover:text-indigo-600 transition-colors">
-                    <Camera size={16} />
-                  </button>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">
-                  {formData?.name}
-                </h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  {formData?.phone_number}
-                </p>
-                <div className="flex justify-center gap-4 border-t border-gray-50 pt-6">
-                  <StatBox value="12" label="Donations" />
-                  <div className="w-px h-8 bg-gray-100 self-center"></div>
-                  <StatBox value="48h" label="Volunteer" />
-                </div>
-              </div>
-
-              {/* 2. VERIFICATION STATUS */}
-              
-              <div className="bg-white p-6 rounded-4xl border border-gray-100 shadow-sm">
-                <h4 className="text-sm font-bold text-gray-900 mb-4">
-                  Verification Status
-                </h4>
-                <div className="space-y-3">
-                  <StatusBadge
-                    label="Donor"
-                    status={userData?.donor?.status}
-                    color="bg-rose-500"
-                    icon={<Heart size={14} />}
-                  />
-                  <StatusBadge
-                    label="Volunteer"
-                    status={userData?.volunteer?.status} // Expected: "approved", "pending", or null
-                    color="bg-blue-500"
-                    icon={<Clock size={14} />}
-                    onApply={() => router.push("/apply-volunteer")}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-2 space-y-6">
-              {/* 3. PERSONAL INFORMATION */}
-              <div className="bg-white p-8 rounded-4xl border border-gray-100 shadow-sm">
-                <h4 className="text-lg font-bold text-gray-900 mb-6">
-                  Personal Information
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InputField
-                    label="Full Name"
-                    name="name"
-                    icon={<User size={18} />}
-                    value={formData.name}
-                    onChange={handleInputChange}
-                  />
-                  <InputField
-                    label="Phone Number"
-                    name="phone_number"
-                    icon={<Phone size={18} />}
-                    value={formData.phone_number}
-                    onChange={handleInputChange}
-                  />
-                  <InputField
-                    label="Gender"
-                    name="gender"
-                    icon={<VenusAndMars size={18} />}
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    placeholder="Male / Female"
-                  />
-                  <InputField
-                    label="Date of Birth"
-                    name="dob"
-                    type="date"
-                    icon={<Calendar size={18} />}
-                    value={formData.dob}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              {/* 4. ACCOUNT DETAILS (ADDRESS) */}
-              <div className="bg-white p-8 rounded-4xl border border-gray-100 shadow-sm">
-                <h4 className="text-lg font-bold text-gray-900 mb-6">
-                  Account Details (Address)
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InputField
-                    label="City"
-                    name="city"
-                    icon={<MapPin size={18} />}
-                    value={formData.city}
-                    onChange={handleInputChange}
-                  />
-                  <InputField
-                    label="District"
-                    name="district"
-                    icon={<MapPin size={18} />}
-                    value={formData.district}
-                    onChange={handleInputChange}
-                  />
-                  <InputField
-                    label="Upazila"
-                    name="upazila"
-                    icon={<MapPin size={18} />}
-                    value={formData.upazila}
-                    onChange={handleInputChange}
-                  />
-                  <InputField
-                    label="Village"
-                    name="village"
-                    icon={<MapPin size={18} />}
-                    value={formData.village}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-// Sub-components
-function StatBox({ value, label }) {
-  return (
-    <div className="text-center">
-      <p className="text-xl font-bold text-gray-900">{value}</p>
-      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">
-        {label}
-      </p>
-    </div>
-  );
-}
-
-function InputField({
-  label,
-  name,
-  icon,
-  value,
-  onChange,
-  type = "text",
-  placeholder,
-}) {
-  return (
-    <div className="space-y-2">
-      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">
-        {label}
-      </label>
-      <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
-          {icon}
-        </div>
-        <input
-          type={type}
-          name={name}
-          value={value || ""}
-          onChange={onChange}
-          placeholder={placeholder}
-          className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-semibold focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
-        />
-      </div>
-    </div>
-  );
-}
-
-function StatusBadge({ label, status, color, icon, onApply }) {
-  // Logic for status rendering
-  const isApproved = status === "approved";
-  const isPending = status === "pending";
-  const isNull = !status;
-
-  return (
-    <div className="p-3 rounded-xl border border-gray-100 bg-white flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div
-            className={`p-1.5 rounded-lg text-white ${color} ${isNull ? "grayscale opacity-50" : ""}`}
-          >
-            {icon}
-          </div>
-          <span className="text-sm font-bold text-gray-700">{label}</span>
-        </div>
-        {isApproved && <CheckCircle2 size={18} className="text-green-500" />}
-        {isPending && <AlertCircle size={18} className="text-amber-500" />}
-      </div>
-
-      {isNull ? (
-        <button
-          onClick={onApply}
-          className="w-full py-2 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-all"
-        >
-          Apply to become a {label}
-        </button>
-      ) : (
-        <p
-          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md w-fit ${
-            isApproved
-              ? "bg-green-100 text-green-700"
-              : "bg-amber-100 text-amber-700"
-          }`}
-        >
-          {status}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function SidebarItem({ icon, label, active = false }) {
-  return (
-    <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${
-        active
-          ? "bg-indigo-50 text-indigo-600 shadow-sm"
-          : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-      }`}
-    >
-      {icon}
-      <span className="font-semibold text-sm">{label}</span>
-    </div>
-  );
-}
